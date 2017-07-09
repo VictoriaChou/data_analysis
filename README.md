@@ -1,2 +1,6 @@
-# data_analysis
-Using python to analyse data - prepare for Mathematical Modeling
+# 利用Python进行数据分析
+备战九月份数学建模
+## 优化
+- 线性规划
+  - 简介：研究线性约束条件下目标函数极值的工具
+  - 用途： 主要用来解决约束条件为线性的情况下，某些最优化的结果。
