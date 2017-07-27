@@ -1,10 +1,13 @@
 # swiper
 
-> 从MongoDB中调用图片信息，前端编写React图片轮播组件展示。
+> 编写RESTful APi，前端编写React图片轮播组件展示。
 
 ## 技术栈
 
-> React + restify + Mongoose
+> 1. React
+> 2. restify
+> 3. Mongoose
+> 4. pm2
 
 ## RESTful Api
 
