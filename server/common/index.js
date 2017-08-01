@@ -1,4 +1,4 @@
-const BingDailyImage = require('../mongodb')
+const BingDailyPic = require('../mongodb').BingDailyPic
 
 const getTime = (req, res, next) => {
     res.send(new Date().toDateString())
@@ -11,6 +11,7 @@ const getBingDailyPicUrl = (req, res, next) => {
     }
 
     function cb(err, docs) {
+        console.log(docs)
         res.charSet('utf-8')
 
         if(err) res.send(err)
@@ -28,7 +29,7 @@ const getBingDailyPicUrl = (req, res, next) => {
         conditions = { startdata: content.startdata }
     }
 
-    BingDailyImage.find(conditions, null, { limit: content.number }, cb)
+    BingDailyPic.find(conditions, null, { limit: content.number }, cb)
 }
 
 module.exports = {

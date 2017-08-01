@@ -4,7 +4,7 @@
 
 ## 技术栈
 
-> 1. React
+> 1. Node.js
 > 2. restify
 > 3. Mongoose
 > 4. pm2

@@ -1,11 +1,15 @@
-const BingPic = require('mongodb')
+const http = require('http')
+const mongoose = require('./mongodb')
+const BingDailyPic = mongoose.BingDailyPic
+const assert = require('assert')
 
 const PICNUM = 8
-const HOST = 'https://cn.bing.com'
+const HOST = 'http://cn.bing.com'
 const BING_QUERY_API = '/HPImageArchive.aspx?'
 const BING_QUERY_PARAMS = `format=js&idx=0&n=${PICNUM}`
 
-const getImgs = function(url){
+const cb = (resolve, url) => {
+    let dailyImages = []
     http.get(url, (res) => {
         const statusCode = res.statusCode
         const contentType = res.headers['content-type']
@@ -24,37 +28,57 @@ const getImgs = function(url){
             res.resume()
             return
         }
-        let dailyImages = []
-        res.images.foreach((item, index) => {
-            dailyImages.push(
-                new BingPic({
-                    url: `${HOST}${item.url}`,
-                    urlbase: `${HOST}${item.baseurl}`,
-                    name: item.urlbase.match(/\w+(?=_)/g)[0],
-                    copyright: item.copyright,
-                    startdate: item.startdate,
-                    fullstartdate: item.fullstartdate
-                })
-            )
-        }) 
-    }).on('error', (e) => {
-        console.error(`Got error: ${e.message}`)
+        let rawData = ''
+        res.on('data', (chunk) => {
+            rawData += chunk
+        })
+        
+        res.on('end', () => {
+            try {
+                const parsedData = JSON.parse(rawData)
+                if(parsedData.images instanceof Array) {
+                    parsedData.images.forEach((item, index) => {
+                        dailyImages.push(
+                            new BingDailyPic({
+                                url: `${HOST}${item.url}`,
+                                urlbase: `${HOST}${item.baseurl}`,
+                                name: item.urlbase.match(/\w+(?=_)/g)[0],
+                                copyright: item.copyright,
+                                startdate: item.startdate,
+                                fullstartdate: item.fullstartdate
+                            })
+                        )
+                    })
+                    resolve(dailyImages)
+                }
+            } catch (e) {
+                console.log(e.message)
+            }
+        })
     })
 }
 
-const saveImgs = async (images) => {
+const saveImgs =  (images) => {
     for (let i = 0; i < images.length; i++) {
-        const docs = await BingPic.find({ name: images[i].name })
-        if (docs.length === 0) {
-            await images[i].save()
-        }
+        const query = BingDailyPic.find({ name: images[i].name })
+        assert.equal(query.exec().constructor, global.Promise)
+        query.then((docs) =>{
+            if (docs.length === 0) {
+                console.log('aaaa')
+                images[i].save()
+            }
+        })
     }
 }
-
-const init = async () => {
-    const image = getImgs(`${HOST}${BING_QUERY_API}${BING_QUERY_PARAMS}`)
-    await saveImgs(iamges)
-    mongoose.disconnect()
+const getImgs = function(url) {
+    const p = new Promise((resolve, reject) => {
+        cb(resolve,url)
+    }).then((data) => {
+        saveImgs(data)
+    })
 }
 
-init()
+getImgs(`${HOST}${BING_QUERY_API}${BING_QUERY_PARAMS}`)
+
+//init()
+
