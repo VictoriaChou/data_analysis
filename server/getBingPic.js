@@ -60,25 +60,21 @@ const cb = (resolve, url) => {
 
 const saveImgs =  (images) => {
     for (let i = 0; i < images.length; i++) {
-        const query = BingDailyPic.find({ name: images[i].name })
-        assert.equal(query.exec().constructor, global.Promise)
-        query.then((docs) =>{
-            if (docs.length === 0) {
-                console.log('aaaa')
-                images[i].save()
-            }
-        })
+        BingDailyPic.find({name:images[i].name},(error, docs) => {
+            if(error) return console.error(err)
+            console.log(docs.length)
+            images[i].save()
+        });
     }
 }
+
 const getImgs = function(url) {
     const p = new Promise((resolve, reject) => {
         cb(resolve,url)
     }).then((data) => {
+        //console.log(data)
         saveImgs(data)
     })
 }
 
 getImgs(`${HOST}${BING_QUERY_API}${BING_QUERY_PARAMS}`)
-
-//init()
-

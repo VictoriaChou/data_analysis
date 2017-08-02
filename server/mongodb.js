@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
-mongoose.set('debug', true)
+//mongoose.set('debug', true)
 
 const DB_ADDRESS = 'mongodb://localhost/bingpic'
-mongoose.createConnection(DB_ADDRESS)
+mongoose.connect(DB_ADDRESS)
 
 const db = mongoose.connection
 db.on('error', (err) => console.error(`mongodb connection err: ${err}`))
@@ -18,6 +18,7 @@ const bingPicSchema = mongoose.Schema({
     fullstartdate: String
 })
 
-mongoose.BingDailyPic = mongoose.model('BingDailyPic', bingPicSchema) 
+const BingDailyPic = mongoose.model('BingDailyPic', bingPicSchema)
+mongoose.BingDailyPic = BingDailyPic
 
-module.exports = mongoose
+module.exports =  mongoose
