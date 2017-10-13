@@ -1,4 +1,3 @@
-const util = require('../util')
 const BingDailyImage = require('../mongodb')
 
 const getTime = (req, res, next) => {

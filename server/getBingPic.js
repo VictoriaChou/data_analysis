@@ -1,4 +1,4 @@
-const BingPic = require('/mongodb')
+const BingPic = require('mongodb')
 
 const PICNUM = 8
 const HOST = 'https://cn.bing.com'
@@ -7,38 +7,54 @@ const BING_QUERY_PARAMS = `format=js&idx=0&n=${PICNUM}`
 
 const getImgs = function(url){
     http.get(url, (res) => {
-        const statusCode = res.statusCode;
-        const contentType = res.headers['content-type'];
+        const statusCode = res.statusCode
+        const contentType = res.headers['content-type']
     
-        let error;
+        let error
         if (statusCode !== 200) {
             error = new Error('Requset Failed.\n' +
-                `Status Code: ${statusCode}`);
+                `Status Code: ${statusCode}`)
         } else if (!/^application\/json/.test(contentType)) { //判断是不是JSON
             error = new Error('Invalid content-type.\n' +
-                `Expected application/json but received ${contentType}`);
+                `Expected application/json but received ${contentType}`)
         }
         if (error) {
-            console.log(error.message);
+            console.log(error.message)
             // consume response data to free up memory
-            res.resume();
-            return;
+            res.resume()
+            return
         }
-        // "/az/hprichbg/rb/SoyuzReturn_EN-US8775853306",
-        //[a-zA-z]+://[^\s]*
         let dailyImages = []
         res.images.foreach((item, index) => {
             dailyImages.push(
                 new BingPic({
                     url: `${HOST}${item.url}`,
                     urlbase: `${HOST}${item.baseurl}`,
-                    name: item.urlbase.match(
+                    name: item.urlbase.match(/\w+(?=_)/g)[0],
+                    copyright: item.copyright,
+                    startdate: item.startdate,
+                    fullstartdate: item.fullstartdate
                 })
             )
         }) 
     }).on('error', (e) => {
-        console.error(`Got error: ${e.message}`);
-    });
-}();
+        console.error(`Got error: ${e.message}`)
+    })
+}
 
-getImgs(`${HOST}${BING_QUERY_API}${BING_QUERY_PARAMS}`)
+const saveImgs = async (images) => {
+    for (let i = 0; i < images.length; i++) {
+        const docs = await BingPic.find({ name: images[i].name })
+        if (docs.length === 0) {
+            await images[i].save()
+        }
+    }
+}
+
+const init = async () => {
+    const image = getImgs(`${HOST}${BING_QUERY_API}${BING_QUERY_PARAMS}`)
+    await saveImgs(iamges)
+    mongoose.disconnect()
+}
+
+init()

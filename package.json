@@ -4,6 +4,7 @@
   "description": "A picture swiper component to show picture obtained from Bing",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,6 +25,7 @@
   },
   "homepage": "https://github.com/VictoriaChou/swiper#readme",
   "dependencies": {
+    "dtrace-provider": "^0.8.5",
     "mongoose": "^4.12.1",
     "restify": "^6.0.1"
   }
